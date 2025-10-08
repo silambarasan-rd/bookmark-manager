@@ -1,95 +1,103 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
+import { useBookmarks } from "@/hooks/useBookmarks";
+import { CreateBookmarkData } from "@/types/bookmark";
 import styles from "./page.module.css";
+import BookmarkForm from "@/components/BookmarkForm";
+import BookmarkList from "@/components/BookmarkList";
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const { bookmarks, loading, error, addBookmark, deleteBookmark, refetch } = useBookmarks();
+  const [showAddBookmarkForm, setShowAddBookmarkForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const handleAddBookmark = async (bookmark: CreateBookmarkData) => {
+    try {
+      setIsSubmitting(true);
+      await addBookmark(bookmark);
+      setShowAddBookmarkForm(false);
+      refetch();
+    } catch (err) {
+      console.log("Failed to add bookmark: ", err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+  const handleDeleteBookmark = async (id: string) => {
+    if (confirm("Are you sure wanna remove this Bookmark ?")) {
+      try {
+        await deleteBookmark(id);
+      } catch (error) {
+        console.log('Failed to delete bookmark', error);
+      }
+    }
+  };
+
+  if (loading) {
+    return <div className={styles['loading-container']}>
+      <div className={styles['loading-content']}>
+        <div className={styles['loading-spinner']}></div>
+        <p>Loading bookmarks...</p>
+      </div>
+    </div>
+  }
+
+  return (
+    <div>
+      <SignedIn>
+        <div className="container">
+          <div className={styles["page-header"]}>
+            <div className={styles["header-content"]}>
+              <div className={styles["header-text"]}>
+                <h1>Bookmark Manager</h1>
+                <p>Organize and manage your bookmarks</p>
+              </div>
+              <div className={styles["header-button"]}>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => setShowAddBookmarkForm(!showAddBookmarkForm)}
+                >
+                  {showAddBookmarkForm ? "Cancel" : "Add Bookmark"}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        <div className="container">
+          {error && (
+            <div className={styles["error-message"]}>
+              <p>Error: {error}</p>
+              <button onClick={refetch} className="btn btn-secondary">
+                Retry
+              </button>
+            </div>
+          )}
+
+          {showAddBookmarkForm && (
+            <div className={styles["form-section"]}>
+              <BookmarkForm
+                onSubmit={handleAddBookmark}
+                isSubmitting={isSubmitting}
+              />
+            </div>
+          )}
+
+          <BookmarkList bookmarks={bookmarks} onDelete={handleDeleteBookmark} />
+        </div>
+      </SignedIn>
+      <SignedOut>
+        <div className={styles["signout-container"]}>
+          <div className={styles["signout-content"]}>
+            <p className={styles["signout-text"]}>
+              Please sign in to manage your bookmarks
+            </p>
+          </div>
+        </div>
+      </SignedOut>
     </div>
   );
 }
