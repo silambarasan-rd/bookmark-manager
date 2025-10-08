@@ -52,8 +52,8 @@ export default function Home() {
           <div className={styles["page-header"]}>
             <div className={styles["header-content"]}>
               <div className={styles["header-text"]}>
-                <h1>Bookmark Manager</h1>
-                <p>Organize and manage your bookmarks</p>
+                <h1>Manage your bookmarks</h1>
+                <p>Organize bookmarks by listing, creating and removing them.</p>
               </div>
               <div className={styles["header-button"]}>
                 <button

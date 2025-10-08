@@ -9,6 +9,9 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
+        <head>
+          <title>Bookmark Manager - MCP Server</title>
+        </head>
         <body>
           <header className="header">
             <div>
