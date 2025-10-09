@@ -21,6 +21,28 @@ export async function getUserBookmarks(userId: string): Promise<Bookmark[]> {
   }
 }
 
+export async function getSingleUserBookmark(userId: string, searchQuery: string): Promise<Bookmark | null> {
+  try {
+    const bookmark = await prisma.bookmark.findFirst({
+      where: {
+        userId,
+        OR: [
+          { title: { contains: searchQuery, mode: 'insensitive' } },
+          { url: { contains: searchQuery, mode: 'insensitive' } }
+        ],
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return bookmark;
+  } catch (error) {
+    console.error("Error fetching bookmark:", error);
+    throw new Error(`Failed to fetch a bookmark for the given keyword: ${searchQuery}`);
+  }
+}
+
 export async function createUserBookmark(userId: string, bookmark: CreateBookmarkData): Promise<Bookmark> {
   try {
     if (!bookmark.url || !bookmark.title) {

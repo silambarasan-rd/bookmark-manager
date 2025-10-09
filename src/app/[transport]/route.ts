@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { verifyClerkToken } from '@clerk/mcp-tools/next'
 import { createMcpHandler, withMcpAuth } from '@vercel/mcp-adapter'
 import { auth } from '@clerk/nextjs/server'
-import { createUserBookmark, getUserBookmarks } from '@/lib/bookmark-utils';
+import { createUserBookmark, getSingleUserBookmark, getUserBookmarks } from '@/lib/bookmark-utils';
 import { CreateBookmarkData } from '@/types/bookmark';
 import {z} from 'zod';
 
@@ -19,6 +20,42 @@ const handler = createMcpHandler((server) => {
           content: [{
             type: 'text',
             text: JSON.stringify(bookmarks)
+          }]
+        };
+      } catch (err) {
+        return {
+          content: [{
+            type: 'text',
+            text: `error: ${err}`
+          }]
+        };
+      }
+    },
+  ),
+  server.tool(
+    'get-single-user-bookmark',
+    'Get a single bookmark using searchQuery for the authenticated user',
+    { 
+      searchQuery: z.string().describe('The Search query to find a single bookmark')
+    },
+    async (args, { authInfo }) => {
+      try {
+        const userId = authInfo!.extra!.userId! as string;
+        const bookmark = await getSingleUserBookmark(userId, args.searchQuery);
+
+        if (!bookmark) {
+          return {
+            content: [{
+              type: 'text',
+              text: `There is no bookmark found for the given keyword : ${args.searchQuery}`
+            }]
+          };
+        }
+
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify(bookmark)
           }]
         };
       } catch (err) {

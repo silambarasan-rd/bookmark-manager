@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createUserBookmark, getUserBookmarks } from "@/lib/bookmark-utils";
+import { createUserBookmark, getUserBookmarks, getSingleUserBookmark } from "@/lib/bookmark-utils";
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,6 +8,20 @@ export async function GET(request: NextRequest) {
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const { searchParams } = new URL(request.url);
+    const searchQuery = searchParams.get('search');
+
+    // If search query is provided, search for a specific bookmark
+    if (searchQuery) {
+      const bookmark = await getSingleUserBookmark(userId, searchQuery);
+      if (!bookmark) {
+        return NextResponse.json({ error: `Bookmark not found for the keyword: ${searchQuery}` }, { status: 404 });
+      }
+      return NextResponse.json(bookmark, { status: 200 });
+    }
+
+    // Otherwise, get all bookmarks
     const bookmarks = await getUserBookmarks(userId);
     return NextResponse.json(bookmarks, { status: 200 });
   } catch (error) {
