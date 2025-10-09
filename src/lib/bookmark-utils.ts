@@ -1,7 +1,8 @@
-import { PrismaClient, Bookmark } from "../generated/prisma";
+import { PrismaClient, Bookmark } from "../generated/prisma-client";
+import { withAccelerate } from '@prisma/extension-accelerate';
 import { CreateBookmarkData } from "@/types/bookmark";
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient().$extends(withAccelerate());
 
 export async function getUserBookmarks(userId: string): Promise<Bookmark[]> {
   try {
