@@ -1,7 +1,6 @@
 # Bookmark Manager
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/silambarasan-rd/bookmark-manager)
-[![Vercel](https://img.shields.io/badge/vercel-%23000000.svg?style=for-the-badge&logo=vercel&logoColor=white)](https://bookmark-manager-omega-pink.vercel.app/)
+[![Vercel](https://img.shields.io/badge/vercel-%23000000.svg?style=flat&logo=vercel&logoColor=white)](https://bookmark-manager-omega-pink.vercel.app/)
 
 A modern bookmark management application built with Next.js 15, Prisma, PostgreSQL, and Clerk authentication. This app allows users to create, view, and manage their bookmarks with a clean, responsive interface.
 
