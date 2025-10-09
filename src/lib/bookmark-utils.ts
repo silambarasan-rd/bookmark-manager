@@ -1,6 +1,6 @@
-import { PrismaClient, Bookmark } from "../generated/prisma-client";
+import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from '@prisma/extension-accelerate';
-import { CreateBookmarkData } from "@/types/bookmark";
+import { CreateBookmarkData, Bookmark } from "@/types/bookmark";
 
 const prisma = new PrismaClient().$extends(withAccelerate());
 
