@@ -63,6 +63,33 @@ export async function createUserBookmark(userId: string, bookmark: CreateBookmar
   }
 }
 
+export async function updateUserBookmark(userId: string, bookmarkId: string, bookmark: CreateBookmarkData): Promise<Bookmark> {
+  try {
+    if (!bookmarkId) {
+      throw new Error("Bookmark ID is required to update.");
+    }
+
+    if (!bookmark.url || !bookmark.title) {
+      throw new Error("URL and title are required");
+    }
+    
+    const updatedBookmark = await prisma.bookmark.update({
+      where: {
+        id: bookmarkId
+      },
+      data: {
+        ...bookmark,
+        userId,
+      },
+    });
+
+    return updatedBookmark;
+  } catch (error) {
+    console.error("Error updating bookmark:", error);
+    throw new Error("Failed to update the bookmark");
+  }
+}
+
 export async function deleteUserBookmark(userId: string, bookmarkId: string): Promise<boolean> {
   try {
     const result = await prisma.bookmark.findFirst({

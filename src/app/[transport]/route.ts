@@ -2,7 +2,7 @@
 import { verifyClerkToken } from '@clerk/mcp-tools/next'
 import { createMcpHandler, withMcpAuth } from '@vercel/mcp-adapter'
 import { auth } from '@clerk/nextjs/server'
-import { createUserBookmark, getSingleUserBookmark, getUserBookmarks } from '@/lib/bookmark-utils';
+import { createUserBookmark, getSingleUserBookmark, getUserBookmarks, updateUserBookmark } from '@/lib/bookmark-utils';
 import { CreateBookmarkData } from '@/types/bookmark';
 import {z} from 'zod';
 
@@ -91,6 +91,42 @@ const handler = createMcpHandler((server) => {
           content: [{
             type: 'text',
             text: `Created a new bookmark : ${JSON.stringify(newBookmark)}`
+          }]
+        };
+      } catch (err) {
+        return {
+          content: [{
+            type: 'text',
+            text: `error: ${err}`
+          }]
+        };
+      }
+    }
+  ),
+  server.tool(
+    'update-user-bookmark',
+    'Update an existing bookmark by ID for the authenticated user',
+    { 
+      id: z.string().describe('The ID of the bookmark to be updated'),
+      url: z.string().describe('The URL of the bookmark to update'),
+      title: z.string().describe('The Title of the bookmark to update'),
+      notes: z.string().describe('Additional Notes for the bookmark to update').optional(),
+    },
+    async (args, { authInfo }) => {
+      try {
+        const userId = authInfo!.extra!.userId! as string;
+        const bookmarkData: CreateBookmarkData = {
+          url: args.url,
+          title: args.title,
+          notes: args.notes || null
+        }
+
+        const updatedBookmark = await updateUserBookmark(userId, args.id, bookmarkData);
+
+        return {
+          content: [{
+            type: 'text',
+            text: `Updated the bookmark : ${JSON.stringify(updatedBookmark)}`
           }]
         };
       } catch (err) {
