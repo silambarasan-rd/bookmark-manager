@@ -5,7 +5,7 @@ import {
 
 const handler = protectedResourceHandlerClerk({
   // Specify which OAuth scopes this protected resource supports
-  scopes_supported: ['profile', 'email'],
+  scopes_supported: ['openid', 'profile', 'email'],
 })
 const corsHandler = metadataCorsOptionsRequestHandler()
 
